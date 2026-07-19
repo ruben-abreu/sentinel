@@ -23,7 +23,7 @@ The project is inspired by common security assessment techniques and is designed
 
 ---
 
-## Current Features (v0.2)
+## Current Features (v0.2.1)
 
 - **Interactive CLI**: Menu-driven target selection interface with full user validation.
 - **Dynamic Routing**: Assessment sub-menu contextually tracks the selected asset.

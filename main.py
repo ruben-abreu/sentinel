@@ -3,26 +3,54 @@ import scanners.tls as tls
 import scanners.was as was
 import scanners.ports as ports
 import scanners.email as email
+import re
+import ipaddress
 
 def display_banner():
     print("========================================")
     print("               SENTINEL         ")
-    print("                  v0.2   ")
+    print("                  v0.2.1   ")
     print("========================================")
 
 def option_domain():
-    user_domain = input("Enter domain: ").strip()
-    print ("Target Selected")
-    print("Type: Domain")
-    print(f"Value: {user_domain} ")
-    return user_domain
+  while True:
+        user_domain = input("Enter domain (e.g., google.com): ").strip()
+        pattern = r"^(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$"
+        if re.match(pattern, user_domain):
+            print("\n--- Target Selected ---")
+            print("Type: Domain")
+            print(f"Value: {user_domain}")
+            print("========================================")
+            return user_domain
+        else:
+            print("[!] Invalid domain format. Try again (do not include http:// or slashes).")
 
 def option_ip():
-    user_ip = input("Enter IP address: ").strip()
-    print ("Target Selected")
-    print("Type: IP Address")
-    print(f"Value: {user_ip} ")
-    return user_ip
+    while True:
+        user_ip = input("Enter IP address (e.g., 8.8.8.8): ").strip()
+
+        try:
+            ip_obj = ipaddress.ip_address(user_ip)
+
+            if (
+                ip_obj.is_private
+                or ip_obj.is_loopback
+                or ip_obj.is_link_local
+                or ip_obj.is_multicast
+                or ip_obj.is_reserved
+                or ip_obj.is_unspecified
+            ):
+                print("[!] Only public IP addresses are allowed.")
+                continue
+
+            print("\n--- Target Selected ---")
+            print("Type: Public IP Address")
+            print(f"Value: {user_ip}")
+            print("========================================")
+            return user_ip
+
+        except ValueError:
+            print("[!] Invalid IP address format. Please try again.")
 
 def main_menu():
     while True:
