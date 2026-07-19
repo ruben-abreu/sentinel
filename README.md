@@ -2,7 +2,7 @@
 
 A modular command-line security assessment toolkit built with Python.
 
-Sentinel is the flagship project of **Project Ascend**
+Sentinel is the flagship project of **Project Ascend**.
 
 The goal is to build a professional, modular security assessment toolkit while progressively learning Python, networking, software engineering, and artificial intelligence. Instead of creating many small practice projects, Sentinel evolves every week as I learn new concepts.
 
@@ -23,13 +23,12 @@ The project is inspired by common security assessment techniques and is designed
 
 ---
 
-## Current Features (v0.1)
+## Current Features (v0.2)
 
-- Interactive command-line interface
-- Target type selection (Domain or IP Address)
-- User input acceptance and validation
-- Selected target confirmation
-- Modular project structure ready for future expansion
+- **Interactive CLI**: Menu-driven target selection interface with full user validation.
+- **Dynamic Routing**: Assessment sub-menu contextually tracks the selected asset.
+- **Modular Package Architecture**: Core scanner engines completely decoupled into a standalone `scanners` package using package-level imports.
+- **Global Termination Execution**: Quick system-level exit capability safely embedded directly within the deep loop framework.
 
 ---
 
@@ -39,9 +38,8 @@ The project is inspired by common security assessment techniques and is designed
 
 - [x] Interactive CLI
 - [x] Target selection
-- [ ] Assessment menu
-- [ ] Project refactoring
-- [ ] File-based target loading
+- [x] Assessment menu
+- [x] Project package refactoring
 
 ### Phase 2 — Networking
 
@@ -89,15 +87,23 @@ The project is inspired by common security assessment techniques and is designed
 - **Git**
 - **GitHub**
 
-> _Note: Additional technologies will be introduced as the project evolves._
+> _Note: Additional libraries and packages will be introduced as the functional scanner mechanics drop into place._
 
 ---
 
 ## Project Structure
 
 ```text
-projects/
-└── sentinel/
-    ├── main.py
-    └── README.md
+sentinel/
+│
+├── main.py
+├── .gitignore
+├── README.md
+└── scanners/
+    ├── __init__.py
+    ├── dns.py
+    ├── tls.py
+    ├── headers.py
+    ├── ports.py
+    └── email.py
 ```
