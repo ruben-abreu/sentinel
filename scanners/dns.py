@@ -17,34 +17,44 @@ def run(target, target_type):
             print(f"[!] Error resolving domain: {e}")
 
     elif target_type == "IP Address":
-        print(f"\n[*] Starting Passive DNS (pDNS Graph) validation for IP: {target}...")
+        print(f"\n[*] Starting pDNS Graph validation for IP: {target}...")
         raw_domains = set()
 
-        if VT_API_KEY and VT_API_KEY != "":
-            url = f"https://www.virustotal.com/api/v3/ip_addresses/{target}/resolutions"
-            req = urllib.request.Request(url)
-            req.add_header("x-apikey", VT_API_KEY)
-            req.add_header("accept", "application/json")
+        if VT_API_KEY and VT_API_KEY.strip() != "":
+            url = f"https://www.virustotal.com/api/v3/ip_addresses/{target}/resolutions?limit=40"
             
-            try:
-                with urllib.request.urlopen(req, timeout=7) as response:
-                    data = json.loads(response.read().decode('utf-8'))
-                    for resolution in data.get("data", []):
-                        host_name = resolution.get("attributes", {}).get("host_name")
-                        if host_name:
-                            raw_domains.add(host_name.rstrip('.'))
-            except Exception as e:
-                print(f"[!] VirusTotal pDNS query failed: {e}")
-                return
+            page = 1
+            while url:
+                req = urllib.request.Request(url)
+                req.add_header("x-apikey", VT_API_KEY.strip())
+                req.add_header("accept", "application/json")
+                
+                try:
+                    with urllib.request.urlopen(req, timeout=7) as response:
+                        data = json.loads(response.read().decode('utf-8'))
+                        
+                        for resolution in data.get("data", []):
+                            host_name = resolution.get("attributes", {}).get("host_name")
+                            if host_name:
+                                raw_domains.add(host_name.rstrip('.'))
+                        
+                        url = data.get("links", {}).get("next")
+                        if url:
+                            page += 1
+                            if page > 5:  # Built-in threshold protecting free API query rate limits
+                                break
+                                
+                except Exception as e:
+                    print(f"[!] VirusTotal pDNS query failed on page {page}: {e}")
+                    break
         else:
             print("[!] VirusTotal API key not found.\n"
-    "    Create a .env file in the project root containing:\n"
-    "    VT_API_KEY=your_api_key")
+                  "    Create a .env file in the project root containing:\n"
+                  "    VT_API_KEY=your_api_key")
             return
 
         filtered_domains = set()
         
-        # Palavras-chave típicas de circuitos e sub-redes de operadoras de internet
         isp_keywords = [
             "telecom", "belgacom", "isp", "adsl", "dynamic", "static", 
             "pool", "client", "cable", "vocalone", "fibra", "ftth", "dialup"
@@ -64,8 +74,16 @@ def run(target, target_type):
             filtered_domains.add(host)
 
         if filtered_domains:
-            print(f"\n[+] Success pDNS Graph: Found \033[1m{len(filtered_domains)}\033[0m targets mapped to this IP:")
-            for host in sorted(filtered_domains):
+            sorted_domains = sorted(filtered_domains)
+            terminal_limit = 10
+            display_domains = sorted_domains[:terminal_limit]
+            
+            print(f"\n[+] Success pDNS Graph: Evaluated {page} API pages. Found \033[1m{len(filtered_domains)}\033[0m unique targets:")
+            
+            for host in display_domains:
                 print(f"    -> Associated Target: \033[1m{host}\033[0m")
+                
+            if len(filtered_domains) > terminal_limit:
+                print(f"    \033[93m... and {len(filtered_domains) - terminal_limit} more corporate targets discovered but omitted for terminal clarity.\033[0m")
         else:
-            print(f"\n[!] Result: No real corporate domain found for the IP {target} (Only ISP noise filtered or no records).")
+            print(f"\n[!] Result: No real corporate domain found for the IP {target} (Filtered across all fetched pages).")
