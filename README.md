@@ -100,7 +100,6 @@ sentinel/
 ├── .gitignore
 ├── README.md
 └── scanners/
-    ├── __init__.py
     ├── dns.py
     ├── tls.py
     ├── headers.py

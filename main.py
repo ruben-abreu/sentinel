@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+import os
+load_dotenv()
 import scanners.dns as dns
 import scanners.tls as tls
 import scanners.was as was
@@ -9,7 +12,7 @@ import ipaddress
 def display_banner():
     print("========================================")
     print("               SENTINEL         ")
-    print("                  v0.2.1   ")
+    print("                  v0.3.0   ")
     print("========================================")
 
 def option_domain():
@@ -91,7 +94,7 @@ def sub_menu(target_value, target_type):
         choice = input("Select an option: ").strip().lower()
         
         if choice == "1":
-            dns.run(target_value)
+            dns.run(target_value, target_type)
         elif choice == "2":
             tls.run(target_value)
         elif choice == "3":
@@ -102,7 +105,7 @@ def sub_menu(target_value, target_type):
             email.run(target_value)
         elif choice == "6":
             print("\n[*] Launching Full Suite Assessment...")
-            dns.run(target_value)
+            dns.run(target_value, target_type)
             tls.run(target_value)
             was.run(target_value)
             ports.run(target_value)
@@ -115,7 +118,22 @@ def sub_menu(target_value, target_type):
             exit()
         else:
             print("\n[!] Invalid choice. Please select a valid module option.")
+            continue # Skip the pause if the selection was totally invalid
 
+        # === THE POST-SCAN INTERACTION GUARD ===
+        # This code runs right after ANY scan (1-6) completes
+        print("\n" + "="*40)
+        print("Scan execution finished.")
+        print("0. Show Menu Options Again")
+        print("q. Quit Sentinel")
+        print("="*40)
+        
+        after_action = input("What would you like to do? ").strip().lower()
+        if after_action == "q":
+            print("\nExiting program. Goodbye!")
+            exit()
+        elif after_action == "0":
+            print("\nReloading menu layout...")
 
 def main():
     display_banner()
