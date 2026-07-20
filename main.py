@@ -12,7 +12,7 @@ import ipaddress
 def display_banner():
     print("========================================")
     print("                SENTINEL         ")
-    print("                 v0.4 ")
+    print("                 v0.5 ")
     print("========================================")
 
 def validate_and_identify_target(user_input):
@@ -84,14 +84,14 @@ def sub_menu(target_value, target_type):
         elif choice == "4":
             ports.run(target_value)
         elif choice == "5":
-            email.run(target_value)
+            email.run(target_value, target_type) 
         elif choice == "6":
             print("\n[*] Launching Full Suite Assessment...")
             dns.run(target_value, target_type)
             tls.run(target_value)
             was.run(target_value)
             ports.run(target_value)
-            email.run(target_value)
+            email.run(target_value, target_type) 
         elif choice == "0":
             break
         elif choice == "q":
