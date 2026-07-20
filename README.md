@@ -43,9 +43,9 @@ The project is inspired by common security assessment techniques and is designed
 
 ### Phase 2 — Networking
 
-- [ ] DNS resolution
-- [ ] IP lookup
-- [ ] Reverse DNS
+- [x] DNS resolution
+- [x] IP lookup
+- [x] Reverse DNS
 
 ### Phase 3 — HTTP Analysis
 
