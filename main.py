@@ -143,13 +143,13 @@ def sub_menu(target_value, target_type, target_port):
     while True:
         port_display = f":{current_port}" if current_port else ""
         print("--- Assessment Menu ---")
-        print("1. SSL Configurations - WIP")
-        print("2. SSL Certificates - WIP")
+        print("1. SSL Configurations - WiP")
+        print("2. SSL Certificates - WiP")
         print("3. Web Application Security")
-        print("4. Open Ports - WIP")
+        print("4. Open Ports - WiP")
         print("5. SPF / DKIM / DMARC")
         print("6. Graph PDNS")
-        print("7. Full Scan - WIP")
+        print("7. Full Scan - WiP")
         print("0. Change Target (New Domain/IP)")
         print("q. Quit")
 
