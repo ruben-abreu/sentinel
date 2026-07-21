@@ -193,15 +193,15 @@ def check_dkim(domain):
         print("    \033[93m[!] DKIM Note: No active records discovered using standard common selectors.\033[0m")
 
 
-def run(target, target_type):
+def run(target, target_type=None, port=None):
     if target_type == "IP Address":
         print("\n[!] Email security auditing (SPF/DKIM/DMARC) requires a Domain target, not an IP address.")
         return
 
-    print(f"\n========================================")
-    print(f" E-MAIL SECURITY & BITSIGHT COMPLIANCE")
+    print("\n========================================")
+    print(" E-MAIL SECURITY & BITSIGHT COMPLIANCE")
     print(f" Target: {target}")
-    print(f"========================================")
+    print("========================================")
     
     check_spf(target)
     check_dmarc(target)

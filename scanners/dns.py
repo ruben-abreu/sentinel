@@ -5,7 +5,7 @@ import os
 
 VT_API_KEY = os.getenv("VT_API_KEY")
 
-def run(target, target_type):
+def run(target, target_type=None, port=None):
     if target_type == "Domain":
         print(f"\n[*] Mapping Active Records to the Domain {target}...")
         try:
