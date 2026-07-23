@@ -13,7 +13,7 @@ import ipaddress
 def display_banner():
     print("========================================")
     print("                SENTINEL         ")
-    print("                 v0.6 ")
+    print("                 v0.6.1 ")
     print("========================================")
 
 def parse_port(port_str):

@@ -216,41 +216,26 @@ def check_js(r):
     scripts = soup.find_all("script", src=True)
 
     for script in scripts:
-
         src = script["src"]
         src_lower = src.lower()
+        has_integrity = script.has_attr("integrity")
 
+        # 1. Identificação da Biblioteca
         for library, regex in libraries.items():
-
-            if library in reported:
-                continue
+            # REMOVIDO: if library in reported: continue (agora verifica sempre)
 
             if library.lower().replace(".js", "") in src_lower:
-
                 version = None
-
                 match = re.search(regex, src_lower)
 
                 if match and match.group(1):
                     version = match.group(1)
-
                 else:
-                    # Try query string versions (?v=3.7.1)
-                    query = re.search(
-                        r"(?:v|ver|version)=([0-9]+\.[0-9]+(?:\.[0-9]+)?)",
-                        src_lower,
-                    )
-
+                    query = re.search(r"(?:v|ver|version)=([0-9]+\.[0-9]+(?:\.[0-9]+)?)", src_lower)
                     if query:
                         version = query.group(1)
-
                     else:
-                        # Generic version anywhere in filename
-                        generic = re.search(
-                            r"([0-9]+\.[0-9]+(?:\.[0-9]+)?)",
-                            src_lower,
-                        )
-
+                        generic = re.search(r"([0-9]+\.[0-9]+(?:\.[0-9]+)?)", src_lower)
                         if generic:
                             version = generic.group(1)
 
@@ -260,12 +245,10 @@ def check_js(r):
                     warn(f"{library} detected (version unknown)")
 
                 print(f"    Source: {src}")
-
-                reported.add(library)
                 found = True
 
-    if not found:
-        ok("No common JavaScript libraries detected.")
+        if not found:
+            ok("No common JavaScript libraries detected.")
 
 """
 def fingerprint(r):
@@ -280,6 +263,53 @@ def fingerprint(r):
     else:
         warn("No common technologies identified")
 """
+def check_sri(r):
+    print("\n[*] Subresource Integrity (SRI)")
+    soup = BeautifulSoup(r.text, "html.parser")
+    scripts = soup.find_all("script", src=True)
+
+    if not scripts:
+        ok("No script tags with 'src' found.")
+        return
+
+    # Lista de domínios com scripts dinâmicos onde o SRI normalmente não é aplicado
+    dynamic_widgets = [
+        "platform.twitter.com",
+        "connect.facebook.net",
+        "googletagmanager.com",
+        "google-analytics.com",
+        "analytics.js"
+    ]
+
+    missing_sri = 0
+    external_scripts = 0
+
+    for script in scripts:
+        src = script.get("src", "").strip()
+        has_integrity = script.has_attr("integrity")
+
+        # Verifica se é um script externo/CDN
+        is_external = src.startswith("http://") or src.startswith("https://") or src.startswith("//")
+
+        if is_external:
+            external_scripts += 1
+            
+            # Verifica se pertence a um widget dinâmico conhecido
+            is_dynamic = any(widget in src.lower() for widget in dynamic_widgets)
+
+            if not has_integrity:
+                if is_dynamic:
+                    warn(f"Dynamic third-party script without SRI (expected): {src}")
+                else:
+                    bad(f"Missing integrity attribute on external CDN: {src}")
+                    missing_sri += 1
+            else:
+                ok(f"SRI integrity present: {src}")
+
+    if external_scripts == 0:
+        ok("No external CDN scripts detected.")
+    elif missing_sri == 0:
+        ok("All critical external CDN scripts have SRI configured.")
 
 def print_redirect_chain(r):
     print("\n[*] Redirect Chain")
@@ -299,6 +329,7 @@ def print_redirect_chain(r):
 
     print("         │")
     print(f"         └──> [{r.status_code}] {r.url}")
+
 
 def run(target, port=443):
     if port == 80:
@@ -340,5 +371,6 @@ def run(target, port=443):
     check_mixed(r)
     #check_forms(r)
     check_js(r)
+    check_sri(r)
     #fingerprint(r)
     print_redirect_chain(r)
